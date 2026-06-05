@@ -1,0 +1,557 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    HIZMATTOP — MENTORLAR UCHUN TO'LIQ TAVSIF
+                    Loyiha: MVP mahalliy xizmatlar platformasi
+                    Yo'nalish: Tadbirkorlik
+═══════════════════════════════════════════════════════════════════════════════
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. TEXNIK MENTOR UCHUN — QANDAY TEXNOLOGIYALAR ISHLATILGAN VA QANDAY?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+UMUMIY ARXITEKTURA
+──────────────────
+Loyiha klassik "Full Stack Web Application" arxitekturasida qurilgan:
+
+  Frontend  →  React.js (SPA)
+  Backend   →  Node.js + Express.js (REST API)
+  Database  →  SQLite (better-sqlite3)
+  Deploy    →  Lokal yoki istalgan VPS (Node.js ishlasa yetarli)
+
+Alohida "processing-service" (Python) — kelajakdagi 3D/VR qayta ishlash uchun.
+
+
+─────────────────────────────────────────
+1.1 FRONTEND — React.js
+─────────────────────────────────────────
+
+Nima uchun React?
+  React — hozirgi kunda eng keng tarqalgan UI kutubxonasi. Komponentlar
+  asosidagi tuzilma kodni qayta ishlatishga imkon beradi. Virtual DOM
+  orqali faqat o'zgargan qismlar yangilanadi — bu tezlikni oshiradi.
+
+Ishlatilgan asosiy texnologiyalar:
+
+  React Router (react-router-dom v6)
+    Sahifalar o'rtasida navigatsiya. PrivateRoute komponenti orqali
+    foydalanuvchi rolini tekshirish (user / owner / admin).
+    Misol: /dashboard faqat owner yoki admin roli bo'lsa ochiladi.
+
+  Context API (React built-in)
+    Global state boshqaruvi uchun:
+    - AuthContext  → foydalanuvchi ma'lumotlari, login/logout
+    - LanguageContext → til tanlash (uz/ru/en), t() funksiyasi orqali
+      barcha textlar tarjima qilinadi
+
+  Axios (api.js)
+    HTTP so'rovlar uchun. Request interceptor — har bir so'rovga
+    avtomatik JWT token qo'shadi. Response interceptor — 401 xatoda
+    tokenni o'chirib /login ga yo'naltiradi.
+
+  Leaflet + react-leaflet
+    OpenStreetMap asosida interaktiv xarita. Foydalanuvchi joylashuvini
+    aniqlash (Geolocation API), eng yaqin bizneslarni ko'rsatish,
+    OSRM marshrutizatsiya (yo'nalish qurish).
+
+  Three.js (VirtualTourModal.js)
+    3D/VR ko'rish uchun. Biznes xona videosini immersive (360-darajali
+    effekt) formatda ko'rsatadi. Sichqoncha bilan boshqarish, klaviatura
+    navigatsiyasi.
+
+  i18n (o'z yechimimiz)
+    translations.js faylida 100+ kalit so'z 3 tilda (uz/ru/en).
+    useLanguage() hook orqali istalgan komponentda t('kalit') chaqiriladi.
+
+
+─────────────────────────────────────────
+1.2 BACKEND — Node.js + Express.js
+─────────────────────────────────────────
+
+Nima uchun Node.js + Express?
+  JavaScript bilan ishlash — frontend va backend bir xil tilda.
+  Express — eng yengil va moslashuvchan Node.js freymvorki.
+  MVP uchun ideal: tez ishlab chiqish, kam konfiguratsiya.
+
+Modullar:
+
+  Express.js (server.js)
+    REST API serveri. Barcha route'lar /api/ prefiksi bilan.
+    Global error handler — barcha xatolarni ushlab JSON qaytaradi.
+
+  bcryptjs
+    Parollarni xavfsiz saqlash uchun hashing (bir tomonlama shifrlash).
+    Foydalanuvchi parolni kiritsа, bcrypt.compare() bilan tekshiriladi.
+    Hech qachon ochiq parol saqlanmaydi.
+
+  jsonwebtoken (JWT)
+    Autentifikatsiya uchun. Login qilganda server token yaratadi:
+    { userId, role } ma'lumotlari + JWT_SECRET bilan imzolangan.
+    Token 7 kun amal qiladi. Har bir so'rovda Authorization: Bearer
+    headerida yuboriladi va middleware/auth.js tekshiradi.
+
+  Multer
+    Fayl yuklash uchun. Virtual tour video (.mp4, .mov, .webm)
+    va preview rasmlari serverga yuklanadi.
+    backend/uploads/ papkasida saqlanadi.
+
+  Middleware tuzilmasi:
+    protect  → JWT tokenni tekshiradi, req.user ni to'ldiradi
+    owner    → faqat role='owner' yoki 'admin' o'ta oladi
+    admin    → faqat role='admin' o'ta oladi
+
+
+─────────────────────────────────────────
+1.3 DATABASE — SQLite (better-sqlite3)
+─────────────────────────────────────────
+
+Nima uchun SQLite?
+  MVP uchun mukammal tanlov:
+  - Alohida server kerak emas (fayl asosida ishlaydi)
+  - Zero configuration — npm install qilib ishlatsa bo'ladi
+  - better-sqlite3 — sinxron API, PostgreSQL/MySQL ga o'tish oson
+  - WAL mode — parallel o'qish tezroq
+
+Jadvallar (12 ta):
+  users              → foydalanuvchilar (id, name, email, password_hash, role)
+  businesses         → bizneslar (id, name, category, lat, lng, status, view_count ...)
+  services           → xizmatlar (narx, davomiylik, flash deal ma'lumotlari)
+  bookings           → band qilishlar (sana, vaqt, narx, status)
+  reviews            → sharhlar (1-5 yulduz, izoh)
+  favorites          → sevimlilar
+  notifications      → bildirishnomalar
+  conversations      → chat suhbatlari
+  messages           → chat xabarlari
+  vr_tours           → VR tur ma'lumotlari (eski tizim)
+  business_virtual_tours → Virtual ko'rish (yangi tizim, faol)
+  promoted_deals     → Admin reklama aktsiyalari (yangi)
+
+normalizeBusiness(), normalizeService() funksiyalari —
+  DB row'larini frontend tushunadigan JSON formatga o'tkazadi.
+
+
+─────────────────────────────────────────
+1.4 API ARXITEKTURASI — REST
+─────────────────────────────────────────
+
+Asosiy endpoint'lar:
+
+  /api/auth          → register, login, profil, sevimlilar
+  /api/businesses    → CRUD bizneslar, sharhlar
+  /api/services      → CRUD xizmatlar, flash deals
+  /api/bookings      → band qilish, slot'lar, status o'zgartirish
+  /api/admin         → moderatsiya, statistika, promoted deals
+  /api/chat          → suhbatlar, xabarlar
+  /api/ai-chat       → AI yordamchi (Groq yoki lokal fallback)
+  /api/notifications → bildirishnomalar
+  /api/business/:id/virtual-tours → Virtual ko'rish
+  /api/vr-tours      → VR tur (eski tizim)
+  /api/users         → admin foydalanuvchi boshqaruvi
+
+HTTP metodlar to'g'ri ishlatilgan:
+  GET    → ma'lumot olish
+  POST   → yangi yaratish
+  PUT    → to'liq yangilash
+  PATCH  → qisman yangilash (status o'zgartirish)
+  DELETE → o'chirish
+
+
+─────────────────────────────────────────
+1.5 AI YORDAMCHI
+─────────────────────────────────────────
+
+Ikki rejim:
+
+  1. Groq API (GROQ_API_KEY bo'lsa)
+     LLM model: llama-3.1-8b-instant
+     Foydalanuvchi so'rovi → DB'dan bizneslar ro'yxati → Groq API'ga
+     yuboriladi → model tavsiya qaytaradi.
+
+  2. Lokal fallback (API key bo'lmasa)
+     Oddiy matn tahlili: kalit so'zlar + kategoriya sinonimlari orqali
+     bizneslar filtrlanadi. Internetga ulangan bo'lmasa ham ishlaydi.
+
+Qo'llab-quvvatlagan tillar: o'zbek, rus, ingliz
+
+
+─────────────────────────────────────────
+1.6 VIRTUAL KO'RISH TEXNOLOGIYASI
+─────────────────────────────────────────
+
+Biznes egasi oddiy telefon videosini yuklaydi →
+Multer saqlab oladi → backend video metadatasini tekshiradi →
+Frontend Three.js orqali "immersive" rejimda ko'rsatadi.
+
+Kelajak rejasi: COLMAP + Gaussian Splatting (3D rekonstruksiya).
+Bu uchun alohida processing-service/ (Python) tayyorlangan —
+GPU ishlarini Node.js'dan ajratib, mustaqil ishlatish uchun.
+
+
+─────────────────────────────────────────
+1.7 XAVFSIZLIK CHORALARI
+─────────────────────────────────────────
+
+  - Parollar: bcrypt hashing (salt rounds: 10)
+  - Autentifikatsiya: JWT (stateless, 7 kun)
+  - Avtorizatsiya: har bir endpoint'da rol tekshiruvi
+  - Input validation: zarur maydonlar tekshiriladi
+  - SQL injection: better-sqlite3 prepared statements (xavfsiz)
+  - Token muddati tugasa: 401 → avtomatik logout + /login redirect
+
+
+─────────────────────────────────────────
+1.8 LOYIHA TUZILMASI
+─────────────────────────────────────────
+
+  hizmattop/
+  ├── backend/
+  │   ├── config/db.js         ← SQLite + normalizatsiya funksiyalari
+  │   ├── controllers/         ← biznes logika (5 ta)
+  │   ├── middleware/auth.js   ← JWT tekshiruvi
+  │   ├── routes/              ← 11 ta route fayl
+  │   ├── seed.js              ← demo ma'lumotlar
+  │   └── server.js            ← Express server
+  ├── frontend/
+  │   └── src/
+  │       ├── components/      ← 10 ta qayta ishlatiladigan komponent
+  │       ├── context/         ← Auth + Language global state
+  │       ├── hooks/           ← useGeolocation custom hook
+  │       ├── i18n/            ← 3 tilli tarjima tizimi
+  │       ├── pages/           ← 10 ta sahifa
+  │       └── utils/helpers.js ← umumiy funksiyalar
+  └── processing-service/      ← Python 3D/VR pipeline (kelajak)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  2. BIZNES MENTOR UCHUN — MONETIZATSIYA QANDAY AMALGA OSHIRILADI?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BOZOR MUAMMOSI
+──────────────
+O'zbekistonda 50 000+ dan ortiq kichik va o'rta xizmat ko'rsatuvchi
+biznes mavjud — sartaroshxonalar, go'zallik salonlari, restoranlar,
+fitnes zallar, o'yin klublari, avtoyuvishlar. Ularning 80% dan
+ko'prog'i:
+  - Onlayn huzur yo'q yoki faqat Instagram'da
+  - Oldindan band qilish imkoni yo'q
+  - Narxlar noaniq — bormasdan bilolmaysan
+  - Foto va xona ko'rinishi ko'rsatilmaydi
+
+Mijoz muammosi: Bormasdan turib xizmat haqida to'liq ma'lumot
+olish mumkin emas. Vaqt va pul yo'qotiladi.
+
+
+YECHIM — QANDAY QIYMAT YARATILADI?
+────────────────────────────────────
+HizmatTop — O'zbekistondagi mahalliy xizmat ko'rsatuvchi bizneslar
+uchun "Yandex + Booking.com" o'xshashi.
+
+Foydalanuvchi tashrifdan oldin:
+  ✓ Barcha xizmatlar va narxlarni ko'radi
+  ✓ Xaritada joylashuvini aniqlaydi
+  ✓ Virtual ko'rish orqali xona ichini ko'radi
+  ✓ Sharhlarni o'qiydi
+  ✓ Onlayn band qiladi
+  ✓ AI yordamchi orqali "Menga eng yaqin arzon sartaroshxona top" deydi
+
+
+MONETIZATSIYA MODELLARI
+────────────────────────
+
+  MODEL 1: OBUNA (SaaS — Asosiy daromad)
+  ─────────────────────────────────────
+  Biznes egalari uchun oylik obuna to'lov:
+
+    Bepul tarif    → 1 ta biznes, 3 ta xizmat, xaritada ko'rinish
+    Standart       → 49,000 so'm/oy
+                     Cheksiz xizmatlar, onlayn band qilish,
+                     chat, bildirishnomalar
+    Premium        → 99,000 so'm/oy
+                     Standart + Virtual ko'rish, Flash Deals,
+                     statistika panel, top ko'rinish
+    Biznes Pro     → 199,000 so'm/oy
+                     Bir nechta filial, API, ustuvor qo'llab-quvvatlash
+
+  O'zbekistonda 10,000 ta biznes Standart to'lasa:
+  → Oylik: 490,000,000 so'm (~38,000 USD)
+
+
+  MODEL 2: KOMISSIYA (Transaction fee)
+  ──────────────────────────────────────
+  Har bir muvaffaqiyatli onlayn to'lovdan 3-8% komissiya.
+  (Hozir to'lov integratsiyasi yo'q — kelajakdagi bosqich)
+  Click yoki Payme integratsiyasi orqali amalga oshiriladi.
+
+
+  MODEL 3: ADMIN REKLAMA / PROMOTED DEALS
+  ──────────────────────────────────────────
+  Bu funksiya ALLAQACHON AMALGA OSHIRILGAN (yangi):
+
+  Admin panel orqali istalgan xizmatni bosh sahifada
+  "Flash Deals" bo'limiga ustuvor joylashtirish mumkin.
+
+  Biznes egasi to'laydi → Admin aktivlashtiradi → Xizmat bosh
+  sahifada birinchi o'rinda ko'rinadi.
+
+  Narxlash (taxminiy):
+    7 kunlik joylashish  → 150,000 so'm
+    30 kunlik joylashish → 450,000 so'm
+    Kategoriyada birinchi → 300,000 so'm qo'shimcha
+
+
+  MODEL 4: LEAD GENERATION (Mijoz yetkazib berish)
+  ──────────────────────────────────────────────────
+  Katta bizneslar (restoran zanjiri, salon tarmog'i) uchun:
+  Har bir konversiya (yozilish) uchun to'lov.
+  1 ta muvaffaqiyatli mijoz = 5,000-20,000 so'm.
+
+
+  MODEL 5: PREMIUM AKKREDITATSIYA
+  ─────────────────────────────────
+  "HizmatTop Verified" nishoni — sifat belgisi.
+  Tekshirilgan biznes uchun to'lovli sertifikat.
+  Mijozlar tekshirilgan biznesga ko'proq ishonadi.
+
+
+  MODEL 6: KELAJAK — B2B API
+  ────────────────────────────
+  Boshqa ilovalar (taxi, delivery) HizmatTop API'dan
+  foydalanishi uchun oylik to'lov.
+  Misol: Yandex Go'da to'g'ridan-to'g'ri sartaroshxona book qilish.
+
+
+RAQOBATCHILAR TAHLILI
+──────────────────────
+  Mahalliy raqobat:
+    - Instagram/Telegram kanallar → narx yo'q, band qilish yo'q
+    - 2GIS → faqat manzil, xizmat ma'lumotlari yo'q
+    - Lokal saytlar → eskirgan, mobil emas
+
+  Global analoglar (lekin O'zbekistonda yo'q):
+    - Booksy (barber/salon booking) — AQSH
+    - Treatwell (salon) — Yevropa
+    - Yandex Uslugi — Rossiya
+
+  HizmatTop afzalligi:
+    Virtual ko'rish funksiyasi — boshqa mahalliy analogda YO'Q.
+    AI yordamchi — mahalliy tilda (o'zbek) ishlaydi.
+    Offline-friendly SQLite — serverga bog'liq emas MVP bosqichida.
+
+
+MOLIYAVIY PROGNOZ (TAXMINIY)
+─────────────────────────────
+  Bosqich 1 (0-6 oy): Toshkent, 200 ta biznes
+    Daromad: 200 × 49,000 = 9,800,000 so'm/oy (~760 USD)
+
+  Bosqich 2 (6-12 oy): Toshkent, 1000 ta biznes + reklama
+    Daromad: 1000 × 49,000 + reklama = ~65,000,000 so'm/oy (~5,000 USD)
+
+  Bosqich 3 (1-2 yil): Viloyatlar, 5000 biznes + komissiya
+    Daromad: ~350,000,000 so'm/oy (~27,000 USD)
+
+Xarajatlar (dastlabki):
+  - Server hosting: 500,000 so'm/oy
+  - Marketing (SMM): 2,000,000 so'm/oy
+  - Jamoa: 2-3 kishi (texnik + sotuvchi)
+
+
+YECHILISHI KERAK BO'LGAN XATARLAR
+────────────────────────────────────
+  1. Biznes egalari texnologiyaga ishonmaydi →
+     Yechim: bepul onboarding, telefon orqali yordam
+
+  2. Foydalanuvchilar bazasi kichik bo'lsa bizneslar qo'shilmaydi →
+     Yechim: avval foydalanuvchilar, keyin bizneslar (chicken-egg muammo)
+     Yechish usuli: bepul tarif bilan ko'proq bizneslarni jalb qilish
+
+  3. To'lov integratsiyasi yo'q hozir →
+     Yechim: keyingi bosqichda Click/Payme ulash
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  3. YO'NALISH MENTOR UCHUN — TADBIRKORLIK BILAN BOG'LIQLIGI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+YO'NALISH: TADBIRKORLIK
+Bu loyiha Tadbirkorlik yo'nalishi bilan BEVOSITA bog'liq — faqat kod
+yozish emas, balki real biznes muammoni yechish orqali qiymat yaratish.
+
+
+3.1 REAL MUAMMO — REAL BOZOR
+──────────────────────────────
+Tadbirkorlikning birinchi qoidasi: "Muammoni top, yechimni qur."
+
+Biz aniq muammo topdik:
+  O'zbekistondagi kichik xizmat bizneslar raqamli dunyo'dan uzilib qolgan.
+  Mijozlar vaqtini behuda sarflaydi, bizneslar mijozlarini yo'qotadi.
+
+Bu muammo real, o'lchanadigan va yechilishi mumkin.
+
+
+3.2 MVP METODOLOGIYASI — TADBIRKOR YONDASHUVI
+───────────────────────────────────────────────
+MVP (Minimum Viable Product) — tadbirkorlikning asosiy tamoyili.
+Ko'p pul va vaqt sarf qilmasdan, eng tez va eng arzon yo'l bilan
+bozorni sinash.
+
+HizmatTop MVP'da:
+  ✓ Foydalanuvchi izlaydi va topadi (core value)
+  ✓ Onlayn yozilish ishlaydi (core value)
+  ✓ Biznes egalari boshqara oladi (core value)
+  ✗ To'lov integratsiyasi — keyingi bosqich (kechiktirish mumkin)
+  ✗ Mobil ilova — keyingi bosqich (veb versiya yetarli)
+  ✗ Gaussian Splatting 3D — keyingi bosqich (demo sifatida enough)
+
+Bu yondashuv bizni keraksiz narsalarga vaqt sarflashdan saqladi.
+
+
+3.3 MULOHAZA YO'NALISHLARI (LEAN STARTUP)
+──────────────────────────────────────────
+Build → Measure → Learn aylanmasi:
+
+  BUILD:   MVP qurildi (hozirgi holat)
+  MEASURE: Foydalanuvchilar platformadan foydalanadimi?
+           Qancha band qilish amalga oshadi?
+           Qaysi kategoriyalar mashhur?
+  LEARN:   Nima o'zgartirish kerak?
+
+Hozirda o'lchash imkoniyatlari:
+  - view_count: har bir biznes sahifasi necha marta ko'rilganini ko'ramiz
+  - Booking statistikasi: qancha band qilish, qaysi statusda
+  - AI so'rovlar: foydalanuvchilar nima so'ramoqda
+
+
+3.4 TADBIRKORLIK MALAKALARI QANDAY QO'LLANILDI?
+───────────────────────────────────────────────────
+
+  Bozor tahlili:
+    O'zbekistonda xizmat sohasidagi bo'shliq aniqlandi.
+    Global analoglar o'rganildi (Booksy, Treatwell, Yandex Uslugi).
+    Mahalliy raqiblar (2GIS, Instagram) bilan taqqoslandi.
+
+  Qiymat taklifi (Value Proposition):
+    "Tashrifdan oldin to'liq ma'lumot" — bu bizning asosiy qiymat.
+    Virtual ko'rish → diferensatsiya, raqiblardan ajralib turish.
+
+  Mijoz segmentatsiyasi:
+    Ikki tomonlama bozor (Two-sided marketplace):
+    → B2C: oddiy foydalanuvchilar (yosh, shahar aholisi)
+    → B2B: kichik va o'rta biznes egalari
+
+  Narxlash strategiyasi:
+    Freemium model — avval bepul jalb qil, keyin premium sotish.
+    O'sish "network effect" ga asoslangan:
+    Ko'p biznes → ko'p foydalanuvchi → ko'p biznes.
+
+  Go-to-market strategiyasi:
+    Bosqich 1: Toshkent, 1-2 ta kategoriya (sartaroshxona)
+    Bosqich 2: Boshqa kategoriyalar qo'shish
+    Bosqich 3: Viloyatlar
+    Bosqich 4: Qo'shni davlatlar (Qozog'iston, Qirg'iziston)
+
+  Raqobatchilik afzalligi (Competitive Advantage):
+    1. Virtual ko'rish — mahalliy bozorda noyob
+    2. AI yordamchi o'zbek tilida — mahalliy
+    3. Offline capable — internet muammoli hududlarda ham ishlaydi
+    4. Arzon infratuzilma — SQLite + Node.js, minimal xarajat
+
+
+3.5 TADBIRKORLIK PRINSIPLARI AMALDA
+──────────────────────────────────────
+
+  "Fail fast, learn faster":
+    Virtual ko'rish full 3D qilishga harakat qilmasdan,
+    avval oddiy video bilan ishlash — agar foydalanuvchilar
+    ishlatsa, keyinroq yaxshilaymiz.
+
+  "Customer development":
+    Platforma 3 xil foydalanuvchi uchun mo'ljallangan:
+    har birining muammosi alohida yechilgan.
+
+  "Scalability":
+    SQLite → PostgreSQL ga o'tish oson.
+    Monolith → Microservices ga o'tish rejalashtirilgan.
+    processing-service alohida ajratilgan — GPU zarur bo'lsa
+    alohida server ulash mumkin.
+
+  "Data-driven decisions":
+    Har bir biznesda view_count, review_count, rating.
+    Admin statistika panel — qanday qarorlar qabul qilishni ko'rsatadi.
+
+
+3.6 IJTIMOIY TA'SIR (SOCIAL IMPACT)
+──────────────────────────────────────
+Tadbirkorlik faqat pul ishlash emas — ijtimoiy qiymat ham.
+
+HizmatTop quyidagi ijtimoiy muammolarni yechadi:
+
+  Kichik biznesni raqamlashtirish:
+    Ko'plab sartaroshxona, salon egasi — 40-50 yoshli,
+    texnologiyadan uzoq. HizmatTop ularga bepul raqamli huzur beradi.
+
+  Ish o'rinlari yaratish:
+    Platform o'sishi bilan: moderatorlar, qo'llab-quvvatlash,
+    marketing — mahalliy ish o'rinlari.
+
+  Vaqtni tejash:
+    Har bir muvaffaqiyatli onlayn yozilish = 20-30 daqiqa
+    telefon qilish va yurishdan tejash.
+
+  Shaffoflik:
+    Narxlar ochiq → foydalanuvchi aldanmaydi.
+    Sharhlar → sifat nazorati.
+
+
+3.7 LOYIHA NIMA EMAS (MUHIM)
+──────────────────────────────
+HizmatTop — faqat texnik loyiha EMAS.
+Bu — texnologiya vositasida biznes muammoni yechish.
+
+  Kod → Mahsulot → Bozor → Daromad → O'sish
+
+Har bir texnik qaror biznes sabab bilan qabul qilindi:
+  - SQLite tanlandi → arzon hosting (xarajat minimizatsiyasi)
+  - 3 til → ko'proq foydalanuvchi (bozorni kengaytirish)
+  - Virtual ko'rish → diferensatsiya (raqiblardan ajralish)
+  - Freemium → tez o'sish (foydalanuvchi bazasi)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  4. XULOSA — LOYIHA TO'G'RISIDA QISQACHA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NIMA QURILDI:
+  O'zbekiston bozori uchun mahalliy xizmatlarni qidirish,
+  ko'rish va onlayn band qilish platformasi.
+
+QANDAY:
+  React + Node.js + SQLite texnologiyalar steki.
+  AI yordamchi, Virtual ko'rish, 3 til, xarita, onlayn band qilish.
+
+NIMA UCHUN:
+  50,000+ kichik biznes raqamli dunyo'ga chiqishi kerak.
+  Foydalanuvchilar tashrifdan oldin to'liq ma'lumot olishi kerak.
+
+KEYINGI BOSQICH:
+  1. Click/Payme to'lov integratsiyasi
+  2. Mobil ilova (React Native)
+  3. Viloyatlarga kengaytirish
+  4. B2B API (boshqa ilovalar uchun)
+  5. Full 3D rekonstruksiya (Gaussian Splatting)
+
+DEMO AKKOUNTLAR:
+  Admin:   admin@hizmat.top   / admin123
+  Owner:   owner@hizmat.top   / owner123
+  User:    user@hizmat.top    / user123
+
+TEXNOLOGIYALAR STEKI:
+  Frontend:  React.js, Leaflet, Three.js, Axios
+  Backend:   Node.js, Express.js, JWT, bcryptjs, Multer
+  Database:  SQLite (better-sqlite3)
+  AI:        Groq API (llama-3.1-8b-instant) + lokal fallback
+  Map:       OpenStreetMap + OSRM routing
+
+─────────────────────────────────────────────────────────────────────────────
+Muallif: HizmatTop jamoasi
+Sana: 2025
+Loyiha: github.com/a-salohiddin-a/hizmattop
+─────────────────────────────────────────────────────────────────────────────

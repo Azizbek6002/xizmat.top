@@ -1,0 +1,11 @@
+node_modules/
+build/
+*.log
+
+backend/data/*.sqlite
+backend/data/*.sqlite-shm
+backend/data/*.sqlite-wal
+backend/uploads/
+processing-service/output/
+
+.env

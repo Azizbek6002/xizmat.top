@@ -1,0 +1,453 @@
+═══════════════════════════════════════════════════════════════════════════════
+              HIZMATTOP — LOYIHA TUZILMASI VA FOYDALANISH STSENARIYLARI
+                     Rollar bo'yicha to'liq funksiyalar tavsifi
+═══════════════════════════════════════════════════════════════════════════════
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PLATFORMADA 3 TA ROL BOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. USER (Mijoz)       — xizmat qidiradi, yoziladi, sharh qoldiradi
+  2. OWNER (Biznes egasi) — biznes ochadi, xizmatlarni boshqaradi
+  3. ADMIN              — platformani moderatsiya qiladi
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ROL 1: USER (MIJOZ)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Demo akkaunt:  user@hizmat.top / user123
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 1: Ro'yxatdan o'tish va kirish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Foydalanuvchi /register sahifasiga o'tadi
+  2. Ism, email, telefon, parol va hisob turini (Mijoz) to'ldiradi
+  3. "Ro'yxatdan o'tish" tugmasini bosadi
+  4. JWT token oladi — avtomatik tizimga kiradi
+  5. Bosh sahifaga yo'naltiriladi
+
+  Yoki /login orqali:
+  1. Email va parolni kiritadi
+  2. "Kirish" tugmasini bosadi
+  3. Token saqlanadi (localStorage)
+  4. Har bir so'rovda token avtomatik yuboriladi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 2: Xizmat qidirish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  Usul A — Qidiruv orqali:
+  1. Bosh sahifadagi qidiruv maydoniga yozadi (masalan: "sartarosh")
+  2. "Izlash" tugmasini bosadi
+  3. Backend: biznes nomi, tavsif, manzil bo'yicha SQL LIKE qidiruv
+  4. Natijalar kartochkalar shaklida ko'rsatiladi
+
+  Usul B — Kategoriya orqali:
+  1. Hero qismidagi ikonka tugmalardan birini bosadi
+     (💈 Sartarosh | 🍽 Restoran | 💅 Salon | 🚗 Avtoyuvish | 💪 Fitnes | 🎮 O'yin)
+  2. Faqat o'sha kategoriya bizneslari filtrlanadi
+
+  Usul C — Filtrlar orqali:
+  1. Shahar tanlaydi (Toshkent, Andijon, Samarqand...)
+  2. Tuman tanlaydi (Mirzo Ulugbek, Chilonzor, Yunusobod...)
+  3. Tartib tanlaydi (Ommabopligi / Reyting / Narx arzondan / Narx qimmatdan)
+  4. "Hozir ochiq" checkboxini belgilaydi
+
+  Usul D — Joylashuv orqali:
+  1. "Joylashuvni aniqlash" tugmasini bosadi
+  2. Brauzer Geolocation API dan koordinata oladi
+  3. "Sizga yaqin xizmatlar" bo'limi paydo bo'ladi (eng yaqin 4 ta)
+  4. Har bir kartochkada masofa ko'rsatiladi (km)
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 3: Biznes sahifasini ko'rish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Kartochkadagi "Yozilish" tugmasini bosadi → /business/:id
+  2. Ko'radigan narsalar:
+     — Biznes fotosi (yoki SVG placeholder gradient)
+     — Kategoriya, ochiq/yopiq holati, reyting, sharh soni, ko'rishlar soni
+     — Shahar, manzil, masofasi (agar joylashuv aniqlangan bo'lsa)
+     — To'liq tavsif
+     — Virtual ko'rish (agar yuklangan bo'lsa) — VR tugmasi
+     — Xizmatlar ro'yxati (narx, davomiyligi, chegirma)
+     — Mini-xarita (biznes joylashuvi)
+     — Marshrut qurish imkoniyati
+     — Sharhlar bo'limi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 4: Virtual ko'rish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "VR ko'rish" tugmasini bosadi
+  2. Fullscreen modal ochiladi (Three.js)
+  3. Video immersive rejimda ko'rsatiladi
+  4. Sichqoncha bilan boshqarish mumkin (chapga/o'ngga)
+  5. Klaviatura: ← → strelkalar, ESC — yopish
+  6. Bir nechta xona bo'lsa — pastda thumbnail kartochkalar
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 5: Onlayn band qilish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Xizmatni tanlaydi (masalan: "Soch olish — 50 000 so'm, 40 min")
+  2. Sana tanlaydi (bugundan boshlab)
+  3. Bo'sh vaqt slotlari paydo bo'ladi (30 daqiqalik intervallar)
+     — Yashil = bo'sh
+     — Kulrang = band yoki o'tgan
+  4. Vaqtni bosadi → tanlangan holat
+  5. "Band qilish" tugmasini bosadi
+  6. Backend tekshiradi: overlap bor-yo'qligi, biznes aktiv, xizmat mavjud
+  7. Flash Deal aktiv bo'lsa — chegirma narxi qo'llaniladi
+  8. Muvaffaqiyatli modal ochiladi:
+     — Biznes nomi, xizmat, sana, vaqt, narx
+     — "Profilga o'tish" tugmasi
+  9. Biznes egasiga bildirishnoma ketadi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 6: AI orqali band qilish (yangi!)
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Navbar'dan "🤖 AI Assistant" tugmasini bosadi → /chat?tab=ai
+  2. Tezkor savollardan birini bosadi yoki o'zi yozadi:
+     "Toshkentda sartaroshxona topib ber"
+  3. AI javob beradi + o'ng tomonda biznes kartochkalari ko'rinadi
+  4. Foydalanuvchi: "Ertaga soat 3da yozilmoqchiman"
+  5. AI sana va vaqtni tahlil qiladi → bo'sh slotlarni tekshiradi
+  6. Tasdiqlash kartochkasi chiqadi:
+     — Biznes nomi, xizmat, sana, vaqt, narx
+     — ✅ Tasdiqlash / ❌ Bekor tugmalari
+  7. "Tasdiqlash" bosilsa → real booking yaratiladi
+  8. 🎉 Muvaffaqiyat kartochkasi → "Profilga o'tish"
+
+  AI tushungan tillar: o'zbek, rus, ingliz
+  Vaqt formatlari: "soat 3", "15:00", "3pm", "v 3 chasa"
+  Sana formatlari: "ertaga", "tomorrow", "zavtra", "15.06", "2025-06-15"
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 7: Biznes egasi bilan chat
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Biznes kartochkasidagi "Chat" tugmasini yoki BusinessDetail'dagi
+     "Egasi bilan chat" tugmasini bosadi
+  2. Suhbat yaratiladi (yoki mavjud suhbat ochiladi)
+  3. /chat?tab=business sahifasiga o'tiladi
+  4. Xabar yozadi — biznes egasiga yetadi
+  5. Xabarlar har 5 soniyada yangilanadi (polling)
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 8: Saralanganlar (Favorites)
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Kartochkadagi ♡ tugmasini bosadi → ♥ (saralanganlarga qo'shiladi)
+  2. Yana bosadi → o'chiriladi
+  3. /profile → "Saralanganlar" tabida ko'radi
+  4. Saralanganlardagi biznes kartochkalarini ochishi mumkin
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 9: Profil va band qilishlarni boshqarish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. /profile ga o'tadi
+  2. "Band qilishlar" tabida ko'radi:
+     — Faol (pending / confirmed) — bekor qilish mumkin
+     — Yakunlangan — "Sharh qoldirish" tugmasi chiqadi
+     — Bekor qilingan — "Xizmatni ko'rish" tugmasi
+  3. "Yozuvni bekor qilish" → tasdiqlash so'raladi → status cancelled
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 10: Sharh qoldirish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  Usul A — BusinessDetail sahifasidan:
+  1. Sahifa pastida "Sharh yozish" bo'limi bor
+  2. 1-5 yulduz tanlaydi (⭐ ikonkalarni bosib)
+  3. Izoh yozadi
+  4. "Sharh yuborish" tugmasini bosadi
+  5. Backend reyting va review_count ni qayta hisoblaydi
+  6. Sharh darhol ro'yxatda ko'rinadi
+
+  Usul B — Profildan:
+  1. Yakunlangan booking'da "Sharh qoldirish ⭐" tugmasini bosadi
+  2. /business/:id#reviews ga yo'naltiriladi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 11: Xarita va marshrut
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Bosh sahifa pastida interaktiv xarita bor (OpenStreetMap)
+  2. Har bir biznes uchun marker (📍) — bosib popup ko'rish mumkin
+  3. "Marshrut" tugmasini bosadi → OSRM orqali yo'nalish quriladi
+  4. Xarita tepasida: Masofa (km) va taxminiy vaqt (daqiqa)
+  5. Qizil marker = foydalanuvchi joylashuvi
+  6. Doira = 300m radius
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 12: Til va bildirishnomalar
+  ─────────────────────────────────────────────────────────────────────────────
+
+  Til o'zgartirish:
+  1. Navbar'dagi dropdown — O'zbek / Русский / English
+  2. Barcha sahifa matni shu til'ga o'tadi (100+ kalit so'z tarjima qilingan)
+  3. Tanlov localStorage'da saqlanadi
+
+  Bildirishnomalar:
+  1. 🔔 tugmasini bosadi
+  2. Panel ochiladi (so'nggi 50 ta)
+  3. O'qilmagan — binafsha fon
+  4. "Barchasini o'qildi" tugmasi bor
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ROL 2: OWNER (BIZNES EGASI)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Demo akkaunt:  owner@hizmat.top / owner123
+  Sahifa: /dashboard (faqat owner va admin ko'ra oladi)
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 1: Biznes yaratish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. /dashboard ga o'tadi
+  2. "Biznes yaratish" formasi tepada turadi
+  3. To'ldiradi:
+     — Biznes nomi *
+     — Kategoriya (dropdown: sartarosh, salon, restoran...)
+     — Biznes turi (Xizmat / Yetkazib beruvchi / Ikkalasi)
+     — Shahar *
+     — Tuman
+     — Manzil *
+     — Telefon
+     — Rasm URL
+     — Tavsif
+     — Xaritadan joylashuv tanlaydi (kartani bosadi → pin qo'yiladi)
+  4. "Biznesni saqlash" tugmasini bosadi
+  5. Biznes "pending" statusida yaratiladi
+  6. Admin tasdiqlagunga qadar platformada ko'rinmaydi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 2: Xizmat qo'shish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Biznes kartochkasida "Xizmat qo'shish" tugmasini bosadi
+  2. Forma ochiladi:
+     — Xizmat nomi *
+     — Narx (so'm) *
+     — Davomiylik (daqiqa) *
+     — Rasm URL
+     — Tavsif
+     — Faol checkbox
+     — Flash Deal checkbox
+       → agar belgilansa: Chegirma narxi va Tugash vaqti maydonlari chiqadi
+  3. "Xizmat qo'shish" tugmasini bosadi → saqlanadi
+  4. Xizmat darhol platformada ko'rinadi (approved biznes bo'lsa)
+
+  Flash Deal qanday ishlaydi:
+  — Tugash vaqtiga qadar chegirma narxi ko'rsatiladi
+  — Bosh sahifadagi "Qaynoq chegirmalar" bo'limida chiqadi
+  — Band qilishda chegirma narxi qo'llaniladi
+  — Tugash vaqti o'tsa — avtomatik o'chadi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 3: Yozuvlarni boshqarish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. Har bir biznes kartochkasida "Yozuvlar" bo'limi bor
+  2. Har bir yozuvda:
+     — Mijoz ismi
+     — Xizmat nomi
+     — Sana va vaqt
+     — Narx
+     — Status (pending / confirmed / completed / cancelled)
+  3. Pending yozuvda: ✅ Tasdiqlash | ❌ Rad etish tugmalari
+  4. Confirmed yozuvda: ✔️ Yakunlash | Bekor qilish tugmalari
+  5. Har bir status o'zgarishda:
+     — Mijozga bildirishnoma ketadi
+     — Dashboard statistikasi yangilanadi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 4: Virtual ko'rish yuklash
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "Virtual ko'rish" bo'limida forma bor
+  2. To'ldiradi:
+     — Xona nomi (masalan: "Asosiy zal")
+     — Qisqa tavsif
+     — Tartib raqami (qaysi o'rinda ko'rinsin)
+     — Holati (Faol / Nofaol)
+     — Preview rasm (ixtiyoriy) — agar yuklanmasa, avtomatik video'dan olinadi
+     — Video fayl * (MP4, MOV, WEBM, max 60 soniya)
+  3. "Video yuklash" tugmasini bosadi
+  4. Video serverga yuklanadi (Multer)
+  5. Preview rasm video'dan avtomatik olinadi (1/3 qismidan)
+  6. Mijozlar endi biznes sahifasida "VR ko'rish" tugmasini ko'radi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 5: Dashboard statistikasi
+  ─────────────────────────────────────────────────────────────────────────────
+
+  Sahifa tepasida 6 ta stat kartochka:
+  — Daromad (confirmed + completed yozuvlar summasi)
+  — Kutilmoqda (pending yozuvlar soni)
+  — Tasdiqlangan (confirmed soni)
+  — Bekor qilingan (cancelled + rejected soni)
+  — Xizmatlar (jami xizmatlar soni)
+  — O'rtacha reyting
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ROL 3: ADMIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Demo akkaunt:  admin@hizmat.top / admin123
+  Sahifa: /admin (faqat admin ko'ra oladi)
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 1: Bizneslarni moderatsiya qilish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "Bizneslar" tabida barcha bizneslar ko'rinadi
+  2. Har birida: kategoriya, status, nomi, manzil, egasi, reyting, ko'rishlar
+  3. Pending biznesda:
+     — ✅ Tasdiqlash → status "approved" → platформada ko'rinadi
+     — ❌ Rad etish → sabab kiritiladi → owner'ga bildirishnoma
+  4. Approved biznesni:
+     — 🚫 Bloklash → sabab kiritiladi → ko'rinmay qoladi
+  5. Blocked biznesni:
+     — 🔓 Blokdan chiqarish → approved ga qaytadi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 2: Foydalanuvchilarni boshqarish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "Foydalanuvchilar" tabida jadval:
+     — Ism, email
+     — Rol (user / owner / admin) — dropdown bilan o'zgartirish mumkin
+     — Holat (Faol / Bloklangan)
+  2. Bloklash → sabab kiritiladi → foydalanuvchi kirа olmaydi
+  3. Blokdan chiqarish → faol holatga qaytadi
+  4. Rolni o'zgartirish → darhol kuchga kiradi
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 3: Admin Flash Deal (reklama) boshqaruvi
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "Aktsiyalar" tabiga o'tadi
+  2. Forma:
+     — Xizmatni tanlaydi (barcha approved bizneslarning xizmatlari)
+     — Sarlavha yozadi (ixtiyoriy)
+     — Banner rasm URL (ixtiyoriy)
+     — Ustuvorlik raqami (kattaroq = birinchi chiqadi)
+     — Tugash vaqti (ixtiyoriy)
+  3. "Aktsiya qo'shish" → bosh sahifada ko'rinadi
+  4. Mavjud aktsiyalar jadvalda: xizmat, biznes, narx, ustuvorlik, tugash
+  5. 🗑 O'chirish tugmasi bor
+
+  ─────────────────────────────────────────────────────────────────────────────
+  STSENARIY 4: Sharhlarni moderatsiya qilish
+  ─────────────────────────────────────────────────────────────────────────────
+
+  1. "Sharhlar" tabida barcha sharhlar:
+     — Biznes nomi, yozgan foydalanuvchi, baho (1-5), izoh
+  2. Noto'g'ri sharhlarda 🗑 O'chirish tugmasi
+  3. O'chirilganda reyting va review_count qayta hisoblanadi
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  BAND QILISH HOLATLARI (STATUS FLOW)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Mijoz yoziladi
+       ↓
+  ⏳ PENDING (kutilmoqda)
+       ↓                    ↓
+  ✅ CONFIRMED          ❌ REJECTED
+  (Egasi tasdiqladi)    (Egasi rad etdi)
+       ↓          ↓
+  ✔️ COMPLETED  ❌ CANCELLED
+  (Xizmat bo'ldi)  (Bekor qilindi)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  BILDIRISHNOMALAR QACHON KELADI?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Mijozga:
+  — Yozilish yaratilganda: "Band qilish yaratildi"
+  — Egasi tasdiqlaganda:   "Band qilish tasdiqlandi"
+  — Egasi rad etganda:     "Band qilish rad etildi"
+  — Yakunlanganda:         "Band qilish yakunlandi"
+  — AI orqali bronlanganda: "Band qilish tasdiqlandi"
+
+  Biznes egasiga:
+  — Yangi yozilish kelganda: "Yangi yozilish so'rovi"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TEXNIK JIHATLAR (QISQACHA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Kirish himoyasi:
+  — JWT token: 7 kun amal qiladi
+  — Token muddati tugasa: avtomatik /login ga yo'naltiriladi
+  — Role-based access: protect / owner / admin middleware
+
+  Bo'sh vaqtlar qanday hisoblanadi:
+  — Ish vaqti (masalan: 09:00 — 21:00) → 30 daqiqalik slotlar
+  — Allaqachon band yoki o'tgan vaqtlar "disabled" bo'ladi
+  — Overlap tekshiruvi: bir vaqtda ikki bron bo'lmaydi
+
+  Reyting qanday hisoblanadi:
+  — Har sharh qo'shilganda / o'chirilganda:
+    AVG(rating) va COUNT(*) qayta hisoblanadi
+  — Biznes jadvalida rating va review_count yangilanadi
+
+  Ko'rishlar (View count):
+  — Biznes sahifasi har ochilganda: view_count + 1
+  — 1000 dan oshsa: "1.2k" formatida ko'rsatiladi
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DEMO MA'LUMOTLAR (seed.js dan)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  AKKAUNTLAR:
+  ┌─────────────────────────────────────────────────────────┐
+  │ Admin:    admin@hizmat.top   / admin123                 │
+  │ Egasi 1:  owner@hizmat.top   / owner123                 │
+  │ Egasi 2:  owner2@hizmat.top  / owner123                 │
+  │ Mijoz 1:  user@hizmat.top    / user123                  │
+  │ Mijoz 2:  user2@hizmat.top   / user123                  │
+  └─────────────────────────────────────────────────────────┘
+
+  BIZNESLAR (7 ta approved + 1 ta pending):
+  — Barbershop SULTAN         (Mirzo Ulugbek, reyting 4.8)
+  — BarberHouse Premium       (Chilonzor, reyting 4.5)
+  — CyberArena Tashkent       (Yunusobod, reyting 4.6)
+  — Samarkand Restaurant      (Yakkasaroy, reyting 4.9)
+  — Beauty Lab Salon          (Chilonzor, reyting 4.9)
+  — AutoSpa Express           (Sergeli, reyting 4.4)
+  — FitZone Gym               (Yunusobod, reyting 4.5)
+  — New Barber Shop           (Mirobod, status: PENDING)
+
+  FLASH DEAL XIZMATLAR:
+  — Men haircut     50 000 → 30 000 so'm  (Barbershop SULTAN)
+  — Haircut         70 000 → 45 000 so'm  (BarberHouse Premium)
+  — Manicure gel    80 000 → 55 000 so'm  (Beauty Lab Salon)
+  — Express wash    40 000 → 25 000 so'm  (AutoSpa Express)
+  — Single visit    35 000 → 20 000 so'm  (FitZone Gym)
+  (Barchasi 48 soatdan keyin avtomatik o'chadi)
+
+  DEMO YOZUVLAR (ertangi sana):
+  — Dilshod: Barbershop SULTAN — Haircut+beard, 14:00, confirmed
+  — Dilshod: CyberArena — PC VIP, 18:00, pending
+  — Nodira:  Samarkand Restaurant — Stol, 19:00, pending
+
+─────────────────────────────────────────────────────────────────────────────
+Muallif: HizmatTop jamoasi | 2025
+GitHub:  github.com/a-salohiddin-a/hizmattop
+─────────────────────────────────────────────────────────────────────────────
